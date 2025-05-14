@@ -10,13 +10,13 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-def interpret_dream(dream_text: str):
+def interpret_dream(dream_text: str) -> dict:
     payload = {"query": f"What does this dream mean: {dream_text}"}
-    response = requests.post(
+    resp = requests.post(
         "https://api.perplexity.ai/sonar/search",
         json=payload,
         headers=HEADERS
     )
-    if response.ok:
-        return response.json()
+    if resp.ok:
+        return resp.json()
     return {"error": "Failed to interpret dream"}
