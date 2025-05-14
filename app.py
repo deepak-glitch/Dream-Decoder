@@ -27,4 +27,3 @@ async def full_analysis(dream: DreamRequest):
         "poem": poem,
         "image": image
     }
-
