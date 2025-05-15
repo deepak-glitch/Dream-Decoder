@@ -10,22 +10,33 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+SONAR_URL = "https://api.perplexity.ai/chat/completions"
+SYSTEM_PROMPT = "You are a creative poet. Write a short, evocative poem based on the user’s dream."
+
 def generate_poem(dream_text: str) -> str:
     """
-    Uses Sonar API to fetch a short poem about the given dream.
+    Always returns a string. Logs any errors internally.
     """
-    payload = {"query": f"Write a short poem about this dream: {dream_text}"}
-    resp = requests.post(
-        "https://api.perplexity.ai/sonar/search",
-        json=payload,
-        headers=HEADERS
-    )
-    if not resp.ok:
+    payload = {
+        "model": "sonar",
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user",   "content": f"Write a short poem about this dream: {dream_text}"}
+        ]
+    }
+
+    try:
+        resp = requests.post(SONAR_URL, json=payload, headers=HEADERS, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        # safely dig into the response
+        choices = data.get("choices", [])
+        if not choices:
+            return "No poem found."
+        choice = choices[0]
+        # some versions return .message.content, others .text
+        content = choice.get("message", {}).get("content") or choice.get("text")
+        return content.strip() if content else "No poem found."
+    except Exception as e:
+        print("‼️ generate_poem error:", e)
         return "Could not generate poem at this time."
-
-    data = resp.json()
-    answers = data.get("answers", [])
-    if not answers:
-        return "No poem found."
-
-    return answers[0].get("text", "").strip()

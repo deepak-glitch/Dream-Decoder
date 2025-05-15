@@ -1,18 +1,27 @@
 import os
 import replicate
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+# Load .env from project root
+load_dotenv(find_dotenv())
 
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
-client = replicate.Client(api_token=REPLICATE_API_TOKEN)
+print("🔑 Replicate token loaded:", bool(REPLICATE_API_TOKEN))
 
 def generate_dream_image(prompt: str) -> dict:
     """
-    Generating a dream visualization using the Flux Schnell model.
+    Uses the Flux Schnell model to generate an image
+    and returns a JSON‐serializable dict with a URL string.
     """
+    if not REPLICATE_API_TOKEN:
+        msg = "Replicate API token not configured"
+        print("❌", msg)
+        return {"error": msg}
+
+    print("🖼️ Generating image with prompt:", prompt)
     try:
-        output = client.run(
+        # replicate.run returns a list of FileOutput objects
+        outputs = replicate.run(
             "black-forest-labs/flux-schnell",
             input={
                 "prompt": prompt,
@@ -25,7 +34,20 @@ def generate_dream_image(prompt: str) -> dict:
                 "num_inference_steps": 4
             }
         )
-        # replicate.run returns a list of URLs
-        return {"image_url": output[0]}
+        print("✅ Replicate.run returned:", outputs)
+
+        if not outputs:
+            return {"error": "No output returned by replicate"}
+
+        first = outputs[0]
+        # FileOutput has a .url attribute
+        url = getattr(first, "url", None)
+        if not url:
+            # fallback to str()
+            url = str(first)
+
+        return {"image_url": url}
+
     except Exception as e:
-        return {"error": str(e)}
+        print("❌ replicate.run exception:", repr(e))
+        return {"error": "Image generation failed", "details": str(e)}

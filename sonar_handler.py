@@ -10,13 +10,35 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+SONAR_URL = "https://api.perplexity.ai/chat/completions"
+SYSTEM_PROMPT = "You are a helpful dream interpreter. Provide concise, insight-filled interpretations."
+
 def interpret_dream(dream_text: str) -> dict:
-    payload = {"query": f"What does this dream mean: {dream_text}"}
-    resp = requests.post(
-        "https://api.perplexity.ai/sonar/search",
-        json=payload,
-        headers=HEADERS
-    )
-    if resp.ok:
-        return resp.json()
-    return {"error": "Failed to interpret dream"}
+    payload = {
+        "model": "sonar",
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user",   "content": f"What does this dream mean: {dream_text}"}
+        ]
+    }
+
+    print("→ Calling Sonar:", SONAR_URL)
+    print("→ Payload:", payload)
+
+    try:
+        resp = requests.post(SONAR_URL, json=payload, headers=HEADERS, timeout=10)
+        resp.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print("‼️ Sonar API request failed:", str(e))
+        return {"error": "Exception when calling Sonar API", "details": str(e)}
+
+    data = resp.json()
+    print("← Sonar response:", data)
+
+    try:
+        choice = data["choices"][0]
+        content = choice.get("message", {}).get("content") or choice.get("text")
+        return {"interpretation": content.strip()}
+    except Exception as e:
+        print("‼️ Failed to parse Sonar response:", str(e))
+        return {"error": "Invalid response structure from Sonar", "details": data}
