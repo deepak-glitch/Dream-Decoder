@@ -1,10 +1,21 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sonar_handler import interpret_dream
 from poem_generator import generate_poem
 from image_generator import generate_dream_image
 
 app = FastAPI()
+
+# ─── CORS Middleware ───────────────────────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# ────────────────────────────────────────────────────────────────────────────────
 
 class DreamRequest(BaseModel):
     dream_text: str
@@ -33,6 +44,5 @@ async def visualize(dream: DreamRequest):
     result = generate_dream_image(dream.dream_text)
     print("▶️  /visualize result:", result)
     if "error" in result:
-        # return HTTP 400 so client sees the message
         raise HTTPException(status_code=400, detail=result["error"])
     return result
