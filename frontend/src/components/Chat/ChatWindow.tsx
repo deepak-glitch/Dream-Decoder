@@ -1,7 +1,7 @@
 // src/components/Chat/ChatWindow.tsx
 import React, { useState, useRef, useEffect } from "react";
-import babyGif   from "C:/Users/sumap/OneDrive/Documents/dream-decoder-ui/src/assets/ppt_gif.gif";
-import lastFrame from "C:/Users/sumap/OneDrive/Documents/dream-decoder-ui/src/assets/lastFrame.png";
+import babyGif   from "/workspaces/perplexityhackathonbackend/frontend/src/assets/ppt_gif.gif";
+import lastFrame from "/workspaces/perplexityhackathonbackend/frontend/src/assets/lastframe.png";
 
 export default function ChatWindow() {
   const [dream, setDream] = useState("");
