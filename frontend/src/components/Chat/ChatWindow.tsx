@@ -1,15 +1,25 @@
 // src/components/Chat/ChatWindow.tsx
+
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import babyGif   from "/workspaces/perplexityhackathonbackend/frontend/src/assets/ppt_gif.gif";
 import lastFrame from "/workspaces/perplexityhackathonbackend/frontend/src/assets/lastframe.png";
 
+const API_BASE = import.meta.env.VITE_API_BASE || ""; // fall back to same‐origin if unset
+
 export default function ChatWindow() {
-  const [dream, setDream] = useState("");
+  // ─── STATE ─────────────────────────────────────────────────────
+  const [dream, setDream]                   = useState("");
   const [optionsVisible, setOptionsVisible] = useState(false);
-  const [selected, setSelected] = useState<"Meaning" | "Poem" | "Image" | null>(null);
+  const [selected, setSelected]             = useState<"Meaning"|"Poem"|"Image"|null>(null);
+
+  const [loading, setLoading]               = useState(false);
+  const [resultText, setResultText]         = useState<string | null>(null);
+  const [resultImg,  setResultImg]          = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // freeze timing
+  // ─── SPLASH GIF TIMING ──────────────────────────────────────────
   const NAV_TIME = 4500;
   const [showGif, setShowGif] = useState(true);
   useEffect(() => {
@@ -18,7 +28,7 @@ export default function ChatWindow() {
     return () => clearTimeout(t);
   }, [showGif]);
 
-  // on Enter, show options
+  // ─── SHOW OPTIONS ON ENTER ─────────────────────────────────────
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -26,10 +36,62 @@ export default function ChatWindow() {
     }
   };
 
-  // dummy results
-  const resultMap = { Meaning: "test1", Poem: "test2", Image: "test3" };
+  // ─── FETCH HELPERS ─────────────────────────────────────────────
+  async function fetchMeaning() {
+    setLoading(true);
+    setSelected("Meaning");
+    try {
+      const { data } = await axios.post<string>(
+        `${API_BASE}/interpret`,
+        { dream_text: dream }
+      );
+      setResultText(data);
+      setResultImg(null);
+    } catch (e: any) {
+      setResultText("❗ " + (e.response?.data?.detail ?? e.message));
+      setResultImg(null);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  // BUTTON STYLE
+  async function fetchPoem() {
+    setLoading(true);
+    setSelected("Poem");
+    try {
+      const { data } = await axios.post<string>(
+        `${API_BASE}/poem`,
+        { dream_text: dream }
+      );
+      setResultText(data);
+      setResultImg(null);
+    } catch (e: any) {
+      setResultText("❗ " + (e.response?.data?.detail ?? e.message));
+      setResultImg(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchImage() {
+    setLoading(true);
+    setSelected("Image");
+    try {
+      const { data } = await axios.post<{ image_url: string }>(
+        `${API_BASE}/visualize`,
+        { dream_text: dream }
+      );
+      setResultImg(data.image_url);
+      setResultText(null);
+    } catch (e: any) {
+      setResultText("❗ " + (e.response?.data?.detail ?? e.message));
+      setResultImg(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ─── BUTTON STYLE ──────────────────────────────────────────────
   const btnStyle: React.CSSProperties = {
     background:   "#0b2545",
     color:        "#fff",
@@ -40,8 +102,7 @@ export default function ChatWindow() {
     fontSize:     14,
   };
 
-  // ──────────────────────────────────────────
-  // CLOUD 1 SHAPE
+  // ─── CLOUD SHAPES ──────────────────────────────────────────────
   const c1Circles = [
     { top: 28, left:   0, width:180, height:100 },
     { top:   0, left: 100, width:200, height:120 },
@@ -51,9 +112,6 @@ export default function ChatWindow() {
     { bottom:-12, left:"44%", size:12 },
     { bottom:-30, left:"58%", size: 8 },
   ];
-
-  // ──────────────────────────────────────────
-  // CLOUD 2 SHAPE
   const c2Circles = [
     { top: 24, left:   0, width:140, height: 80 },
     { top:   0, left:  80, width:180, height:100 },
@@ -94,7 +152,7 @@ export default function ChatWindow() {
             left:         d.left,
             width:        d.width,
             height:       d.height,
-            background:   "#ffffff",      // gray-green fill
+            background:   "#fff",
             borderRadius: "50%",
             boxShadow:    "0 8px 16px rgba(0,0,0,0.2)",
           }}/>
@@ -124,7 +182,7 @@ export default function ChatWindow() {
             top:           40,
             left:          24,
             width:         "calc(100% - 48px)",
-            height:        "calc(3 * 1.4em)",   // exactly 3 lines
+            height:        "calc(3 * 1.4em)",
             padding:       8,
             border:        "none",
             background:    "transparent",
@@ -149,8 +207,8 @@ export default function ChatWindow() {
             position:      "absolute",
             top:           "40%",
             left:          "18%",
-            width:         300,    // narrower
-            height:        160,    // shorter
+            width:         300,
+            height:        160,
             pointerEvents: "auto",
             zIndex:        2,
             overflow:      "visible",
@@ -161,8 +219,8 @@ export default function ChatWindow() {
               position:     "absolute",
               top:          d.top,
               left:         d.left - 16,
-              width:        d.width +  32,
-              height:       d.height +  32,
+              width:        d.width + 32,
+              height:       d.height + 32,
               background:   "#fff",
               borderRadius: "50%",
               boxShadow:    "0 8px 16px rgba(0,0,0,0.2)",
@@ -181,7 +239,6 @@ export default function ChatWindow() {
             }}/>
           ))}
 
-          {/* Highlight 1: prompt */}
           <div style={{
             position:   "absolute",
             top:        24,
@@ -197,7 +254,6 @@ export default function ChatWindow() {
             pick any for more insights:
           </div>
 
-          {/* Highlight 2: buttons */}
           <div style={{
             position: "absolute",
             bottom:   50,
@@ -206,15 +262,15 @@ export default function ChatWindow() {
             display:  "flex",
             gap:      8,
           }}>
-            {(["Meaning","Poem","Image"] as const).map(label => (
-              <button
-                key={label}
-                style={btnStyle}
-                onClick={() => setSelected(label)}
-              >
-                {label}
-              </button>
-            ))}
+            <button style={btnStyle} onClick={fetchMeaning} disabled={loading}>
+              Meaning
+            </button>
+            <button style={btnStyle} onClick={fetchPoem}    disabled={loading}>
+              Poem
+            </button>
+            <button style={btnStyle} onClick={fetchImage}   disabled={loading}>
+              Image
+            </button>
           </div>
         </div>
       )}
@@ -239,8 +295,8 @@ export default function ChatWindow() {
               position:     "absolute",
               top:          d.top,
               left:         d.left - 16,
-              width:        d.width +  32,
-              height:       d.height +  48,
+              width:        d.width + 32,
+              height:       d.height + 48,
               background:   "#fff",
               borderRadius: "50%",
               boxShadow:    "0 8px 16px rgba(0,0,0,0.2)",
@@ -270,11 +326,32 @@ export default function ChatWindow() {
             fontWeight: 600,
             textAlign:  "center",
           }}>
-            {resultMap[selected]}
+            {loading && "Loading…"}
+
+            {!loading && selected !== "Image" && resultText && (
+              resultText.split("\n").map((line, i) => (
+                <p key={i} style={{ margin: 0 }}>{line}</p>
+              ))
+            )}
+
+            {!loading && selected === "Image" && resultImg && (
+              <img
+                src={resultImg}
+                alt="Dream visualization"
+                style={{
+                  maxWidth:      "100%",
+                  borderRadius:  4,
+                  boxShadow:     "0 4px 8px rgba(0,0,0,0.2)"
+                }}
+              />
+            )}
           </div>
 
           <button
-            onClick={() => setSelected(null)}
+            onClick={() => {
+              setSelected(null);
+              // keep optionsVisible=true so you can re-pick
+            }}
             style={{
               position:    "absolute",
               bottom:       16,
