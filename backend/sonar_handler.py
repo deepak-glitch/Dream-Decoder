@@ -1,26 +1,17 @@
 # sonar_handler.py
-import os
-from pathlib import Path
-from dotenv import load_dotenv
+
 import requests
 from typing import Dict
 from requests.adapters import HTTPAdapter, Retry
 from requests.exceptions import ReadTimeout, HTTPError, RequestException
-
-# ─── Load .env ─────────────────────────────────────────────────────────────────
-env_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
 
 SONAR_URL = "https://api.perplexity.ai/chat/completions"
 
 # bump read timeout to 60s, keep connect timeout at 5s
 TIMEOUT = (5, 60)
 
-API_KEY = os.getenv("PERPLEXITY_API_KEY")
-if not API_KEY:
-    raise RuntimeError(
-        "Missing PERPLEXITY_API_KEY. Add it to your .env or export it."
-    )
+# ← your Sonar API key directly in the code:
+API_KEY = "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"
 
 HEADERS = {
     "Authorization": f"Bearer {API_KEY}",
@@ -42,11 +33,14 @@ def interpret_dream(text: str) -> Dict[str, str]:
     payload = {
         "model": "sonar",
         "messages": [
-            {"role": "system", "content": (
-                "You are a helpful dream interpreter. "
-                "Provide concise, insight-filled interpretations."
-            )},
-            {"role": "user", "content": f"What does this dream mean: {text}"}
+            {
+                "role": "system",
+                "content": (
+                    "You are a helpful dream interpreter. "
+                    "Provide concise, insight-filled interpretations."
+                ),
+            },
+            {"role": "user", "content": f"What does this dream mean: {text}"},
         ],
     }
 
