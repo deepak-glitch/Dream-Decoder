@@ -170,7 +170,12 @@ REPLICATE_API_TOKEN=your_replicate_token
 5. Open a Pull Request
 
 ---
+## 👥 Contributors
 
+Thanks to all the people who have contributed to Dream Decoder:
+
+- Deepak Mallampati – Project Lead and Backend Devolpment  
+- Venkata Suma Priya Kankipati – Frontend Devlopment and Integration
 ## 📄 License
 
 This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
