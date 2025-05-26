@@ -8,7 +8,7 @@ from requests.exceptions import ReadTimeout, HTTPError, RequestException
 SONAR_URL = "https://api.perplexity.ai/chat/completions"
 
 # bump read timeout to 60s, keep connect timeout at 5s
-TIMEOUT = (5, 60)
+TIMEOUT = (5, 160)
 
 # ← your Sonar API key directly in the code:
 API_KEY = "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"
