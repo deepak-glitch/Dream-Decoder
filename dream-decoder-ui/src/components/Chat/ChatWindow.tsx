@@ -259,16 +259,16 @@ export default function ChatWindow() {
         </div>
       )}
 
-      {/* Result cloud */}
+      {/* Result cloud (moved up) */}
       {selected && (
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
             position: "absolute",
-            top: "15%",
+            top: "5%",         // ← moved up from 15%
             left: "5%",
             width: 700,
-            height: 500,
+            height: 460,        // ← slightly shorter
             pointerEvents: "auto",
             zIndex: 2,
             overflow: "visible",
@@ -281,9 +281,9 @@ export default function ChatWindow() {
             style={{
               overflow: "visible",
               display: "block",
-              pointerEvents: "none",    // ignore clicks here
-              position: "relative",     // create a stacking context
-              zIndex: 1,                // behind the Back button
+              pointerEvents: "none",
+              position: "relative",
+              zIndex: 1,
             }}
           >
             <defs>
@@ -310,7 +310,7 @@ export default function ChatWindow() {
               y="150"
               width="440"
               height="300"
-              style={{ pointerEvents: "auto" }}  // text/Image still interactive
+              style={{ pointerEvents: "auto" }}
             >
               <div
                 xmlns="http://www.w3.org/1999/xhtml"
@@ -368,7 +368,7 @@ export default function ChatWindow() {
             </foreignObject>
           </svg>
 
-          {/* ← Back (above the SVG) */}
+          {/* ← Back (now fully on the cloud) */}
           <button
             onClick={() => {
               setSelected(null);
@@ -379,7 +379,7 @@ export default function ChatWindow() {
               bottom: 16,
               left: "50%",
               transform: "translateX(-50%)",
-              zIndex: 2,             // above the SVG’s zIndex:1
+              zIndex: 2,
               pointerEvents: "auto",
               ...btnStyle,
             }}
