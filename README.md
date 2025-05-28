@@ -174,8 +174,6 @@ REPLICATE_API_TOKEN=your_replicate_token
 ---
 ## 👥 Contributors
 
-Thanks to all the people who have contributed to Dream Decoder:
-
 - Deepak Mallampati – Project Lead and Backend Devolpment  
 - Venkata Suma Priya Kankipati – Frontend Devlopment and Integration
 ---
