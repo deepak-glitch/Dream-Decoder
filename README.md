@@ -38,7 +38,7 @@
 
 ## 📷 Demo
 
-![Dream Decoder Screenshot](docs/screenshot.png)
+![Dream Decoder Screenshot](screenshot.png)
 
 ---
 
