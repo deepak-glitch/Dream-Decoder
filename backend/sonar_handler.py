@@ -11,7 +11,7 @@ SONAR_URL = "https://api.perplexity.ai/chat/completions"
 TIMEOUT = (5, 160)
 
 # ← your Sonar API key directly in the code:
-API_KEY = "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"
+API_KEY = "pplx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 HEADERS = {
     "Authorization": f"Bearer {API_KEY}",
